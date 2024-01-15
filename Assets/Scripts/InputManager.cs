@@ -6,24 +6,43 @@ using UnityEngine.InputSystem;
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance;
+    public static PlayerInput PlayerInputComponent { get; set; }
 
+    public bool MenuOpenCloseInput { get; private set; }
+    bool IsControlEnabled;
     public Vector2 NavigationInput { get; set; }
 
     InputAction _navigationAction;
-
-    public static PlayerInput PlayerInput { get; set; }
+    InputAction _menuOpenCloseAction;
 
     void Awake()
     {
         if(Instance == null)
         Instance = this;
 
-        PlayerInput= GetComponent<PlayerInput>();
-        _navigationAction = PlayerInput.actions["Navigate"];
+        PlayerInputComponent= GetComponent<PlayerInput>();
+        _navigationAction = PlayerInputComponent.actions["Navigate"];
+        _menuOpenCloseAction = PlayerInputComponent.actions["MenuOpenClose"];
+        DisableControl();
     }
 
     void Update()
     {
-        NavigationInput = _navigationAction.ReadValue<Vector2>();
+        if (IsControlEnabled)
+        { 
+            NavigationInput = _navigationAction.ReadValue<Vector2>();
+
+            MenuOpenCloseInput = _menuOpenCloseAction.WasPressedThisFrame();
+        }
+    }
+    public void EnableControl()
+    {
+        PlayerInputComponent.actions.FindAction("Navigate").Enable();
+        IsControlEnabled = true;
+    }
+    public void DisableControl()
+    {
+        PlayerInputComponent.actions.FindAction("Navigate").Disable();
+        IsControlEnabled = false;
     }
 }
